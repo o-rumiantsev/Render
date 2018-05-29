@@ -12,6 +12,8 @@ def intersection(point1, point2, plane, facet):
     n = y2 - y1
     p = z2 - z1
 
+    if A * m + B * n + C * p == 0: return None
+
     t = -(A * x1 + B * y1 + C * z1 + D) / (A * m + B * n + C * p)
 
     x = x1 + m * t
@@ -19,7 +21,7 @@ def intersection(point1, point2, plane, facet):
     z = z1 + p * t
 
     point = (x, y, z)
-
+    # return point
     if accessory(point, facet): return point
     else: return None
 
@@ -55,8 +57,7 @@ def accessory(point, facet):
 
     s += square(point, facet[-1], facet[0])
 
-    print(s)
-    return s <= polygonSquare(facet)
+    return s <= polygonSquare(facet) + 0.001
 
 # Square of polygon
 #
@@ -74,7 +75,7 @@ def polygonSquare(facet):
 def square(point1, point2, point3):
     a = distance(point1, point2)
     b = distance(point2, point3)
-    c = distance(point3, point1)
+    c = distance(point1, point3)
 
     p = (a + b + c) / 2
 
