@@ -9,9 +9,6 @@ def writeToBMP(pixels, size, filename):
     image = Image.Image()
     image = Image.fromarray(array)
 
-    # image = Image.new('1', size)
     image.save(filename, 'BMP')
-    # for row in pixels:
-    #     print(row)
 
     return None

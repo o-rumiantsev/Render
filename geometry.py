@@ -1,5 +1,8 @@
 import math
 
+sqr = lambda x: math.pow(x, 2)
+error = 0.001
+
 # Find point of intersection
 #
 def intersection(point1, point2, plane, facet):
@@ -21,9 +24,37 @@ def intersection(point1, point2, plane, facet):
     z = z1 + p * t
 
     point = (x, y, z)
-    # return point
+
     if accessory(point, facet): return point
     else: return None
+
+def lightIntersection(point1, point2, plane, facet):
+    x1, y1, z1 = point1
+    x2, y2, z2 = point2
+
+    dist = distance(point1, point2) - error
+    equation, (A, B, C, D) = plane
+
+    m = x2 - x1
+    n = y2 - y1
+    p = z2 - z1
+
+    if A * m + B * n + C * p == 0: return None
+
+    t = -(A * x1 + B * y1 + C * z1 + D) / (A * m + B * n + C * p)
+
+    x = x1 + m * t
+    y = y1 + n * t
+    z = z1 + p * t
+
+    point = (x, y, z)
+
+    if distance(point, point1) > dist or distance(point, point2) > dist:
+        return None
+
+    if accessory(point, facet) and point != point1: return point
+    else: return None
+
 
 # Builds flat equation for given points
 #
@@ -57,7 +88,7 @@ def accessory(point, facet):
 
     s += square(point, facet[-1], facet[0])
 
-    return s <= polygonSquare(facet) + 0.001
+    return s <= polygonSquare(facet) + error
 
 # Square of polygon
 #
@@ -87,6 +118,23 @@ def distance(point1, point2):
     x1, y1, z1 = point1
     x2, y2, z2 = point2
 
-    d = math.pow(x2 - x1, 2) + math.pow(y2 - y1, 2) + math.pow(z2 - z1, 2)
+    d = sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1)
 
     return math.sqrt(d)
+
+# Cosinus of angle between line and plane
+#
+def cosLinePlaneAngle(point1, point2, normal):
+    x1, y1, z1 = point1
+    x2, y2, z2 = point2
+
+    A, B, C, D = normal
+
+    m = x2 - x1
+    n = y2 - y1
+    p = z2 - z1
+
+    len1 = math.sqrt(sqr(A) + sqr(B) + sqr(C))
+    len2 = math.sqrt(sqr(m) + sqr(n) + sqr(p))
+
+    return abs(A * m + B * n + C * p) / (len1 * len2)
