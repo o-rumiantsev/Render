@@ -4,7 +4,6 @@ def buildImagePlane(size, cameraPos, distance):
     y = cameraPos[1] + distance
     z = size[1]/2
 
-
     imagePlane = []
 
     for i in range(size[1] + 1):
@@ -39,5 +38,5 @@ def findIntersections(cameraPos, pixel, equations, facets):
         d = geom.distance(cameraPos, point)
         if d < minDistance: minDistance = d
 
-    if minDistance == float('inf'): return 1
+    if minDistance == float('inf'): return 255
     else: return 0

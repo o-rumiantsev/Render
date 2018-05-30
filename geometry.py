@@ -79,7 +79,7 @@ def square(point1, point2, point3):
 
     p = (a + b + c) / 2
 
-    return math.sqrt(p * (p - a) * (p - b) * (p - c))
+    return math.sqrt(abs((p * (p - a) * (p - b) * (p - c))))
 
 # Distance between two points
 #
