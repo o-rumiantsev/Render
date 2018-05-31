@@ -11,34 +11,27 @@ def getVertices(lines):
 
     return vertices
 
-def getNormals(lines):
-    for line in lines:
-        if not len(line): continue
-
-        if line[0] == 'vn':
-            print(line)
-
-def getFlats(lines):
-    flats = []
+def getFacets(lines):
+    facets = []
 
     for line in lines:
         if not len(line): continue
 
         if line[0] == 'f':
             line = [int(value) for value in line[1:]]
-            flat = tuple(line)
-            flats.append(flat)
+            facet = tuple(line)
+            facets.append(facet)
 
-    return flats
+    return facets
 
-def prepareFlats(vertices, flats):
-    preparedFlats = []
+def prepareFacets(vertices, facets):
+    preparedFacets = []
 
-    for flat in flats:
-        prepared = [vertices[index - 1] for index in flat]
-        preparedFlats.append(prepared)
+    for facet in facets:
+        prepared = [vertices[index - 1] for index in facet]
+        preparedFacets.append(prepared)
 
-    return preparedFlats
+    return preparedFacets
 
 
 def getObjectConfig(filename):
@@ -47,7 +40,6 @@ def getObjectConfig(filename):
     configFile.close()
 
     vertices = getVertices(lines)
-    normals = getNormals(lines)
-    flats = prepareFlats(vertices, getFlats(lines))
+    facets = prepareFacets(vertices, getFacets(lines))
 
-    return vertices, normals, flats
+    return vertices, facets

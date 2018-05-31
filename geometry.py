@@ -1,7 +1,7 @@
 import math
 
 sqr = lambda x: math.pow(x, 2)
-error = 0.001
+error = 0.000001
 
 # Find point of intersection
 #
@@ -9,7 +9,7 @@ def intersection(point1, point2, plane, facet):
     x1, y1, z1 = point1
     x2, y2, z2 = point2
 
-    equation, (A, B, C, D) = plane
+    A, B, C, D = plane
 
     m = x2 - x1
     n = y2 - y1
@@ -33,7 +33,7 @@ def lightIntersection(point1, point2, plane, facet):
     x2, y2, z2 = point2
 
     dist = distance(point1, point2) - error
-    equation, (A, B, C, D) = plane
+    A, B, C, D = plane
 
     m = x2 - x1
     n = y2 - y1
@@ -68,14 +68,7 @@ def plane(points):
     C = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
     D = -(A * x1 + B * y1 + C * z1)
 
-    # Equation to determine whether point belongs to plane
-    #
-    def equation(point):
-        x, y, z = point
-        expression = x * A + y * B + z * C + D
-        return expression == 0
-
-    return equation, (A, B, C, D)
+    return A, B, C, D
 
 # Determine whether point belongs to facet
 #

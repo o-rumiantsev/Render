@@ -2,16 +2,18 @@ import parserObj
 import tracing as tr
 import geometry as geom
 import output
+from time import time
 
-vertices, normals, facets = parserObj.getObjectConfig('./objects/cube.obj')
 
-cameraPos = (0, 0, 0)
-lightPos = (-100, 0, 500)
-size = (800, 600)
-distance = 400
+vertices, facets = parserObj.getObjectConfig('./objects/cube.obj')
+
+cameraPos = (0, -2, 0)
+lightPos = (0, 0, 1)
+size = (600, 400)
+distance = 1
 
 imagePlane = tr.buildImagePlane(size, cameraPos, distance)
-equations = [geom.plane(facet) for facet in facets]
+normals = [geom.plane(facet) for facet in facets]
 
-image = tr.render(cameraPos, lightPos, imagePlane, equations, facets)
-output.writeToBMP(image, size, 'cube.bmp')
+image = tr.render(cameraPos, lightPos, imagePlane, normals, facets)
+output.writeToBMP(image, size, 'cubek.bmp')
