@@ -1,4 +1,5 @@
 from geometry import intersection, lightIntersection, cosLinePlaneAngle
+from KDTree import findIntersection
 
 def buildImagePlane(size, cameraPos, distance):
     xmax = size[0] / 2
@@ -20,15 +21,15 @@ def buildImagePlane(size, cameraPos, distance):
 
     return imagePlane
 
-def render(cameraPos, lightPos, imagePlane, normals, facets):
-    image = [[colorify(cameraPos, pixel, lightPos, normals, facets)
+def render(cameraPos, lightPos, imagePlane, facets, tree):
+    image = [[colorify(cameraPos, pixel, lightPos, facets, tree)
                 for pixel in row]
                     for row in imagePlane]
 
     return image
 
-def colorify(cameraPos, pixel, lightPos, normals, facets):
-    facet, normal = findIntersections(cameraPos, pixel, normals, facets)
+def colorify(cameraPos, pixel, lightPos, facets, tree):
+    facet, normal = findIntersections(cameraPos, pixel, tree)
     bit = 255
 
     if facet:
@@ -36,15 +37,10 @@ def colorify(cameraPos, pixel, lightPos, normals, facets):
 
     return bit
 
-def findIntersections(cameraPos, pixel, normals, facets):
-    distance = min([(intersection(cameraPos, pixel, facets[i]), i)
-                    for i in range(len(facets))], key = lambda x: x[0])
-
-    index = distance[1]
-    distance = distance[0]
-
+def findIntersections(cameraPos, pixel, tree):
+    distance, facet = findIntersection(cameraPos, pixel, tree)
     if distance == float('inf'): return None, None
-    else: return facets[index], normals[index]
+    else: return facet['triangle'], facet['normal']
 
 
 shadowCache = {}
@@ -57,7 +53,7 @@ def buildShadow(lightPos, facet, normal, facets):
 
     shadowed = 50
     light = 200
-    # 
+    #
     # for i in range(len(facets)):
     #     if facet == facets[i]: continue
     #     distance = lightIntersection(lightPos, facet, facets[i])
