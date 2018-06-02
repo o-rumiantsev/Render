@@ -18,7 +18,7 @@ def getFacets(lines):
         if not len(line): continue
 
         if line[0] == 'f':
-            line = [int(value) for value in line[1:]]
+            line = [int(value.split('/')[0]) for value in line[1:]]
             facet = tuple(line)
             facets.append(facet)
 

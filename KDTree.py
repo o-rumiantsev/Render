@@ -1,50 +1,53 @@
 import geometry as geom
 
-def build(points, dimension, depth = 0):
-    n  = len(points)
+DIMENSION = 3
+
+def build(triangles):
+    for i in range(len(triangles)):
+       triangles[i].append(geom.centroid(triangles[i]))
+
+    tree = _build(triangles)
+
+    return tree
+
+def _build(triangles, depth = 0):
+    n  = len(triangles)
 
     if n <= 0:
-        return None
+        return
 
-    axis = depth % dimension
-    sortedPoints = sorted(points, key = lambda point: point[axis])
+    axis = depth % DIMENSION
+    ordered = sorted(triangles, key = lambda centre: centre[3][axis])
+    splitPoint = ordered[int(n / 2)]
+    minPoint, maxPoint = boundingBox(triangles)
 
-    return {
-        'point': sortedPoints[int(n / 2)],
-        'left': build(sortedPoints[:int(n / 2)], depth + 1),
-        'right': build(sortedPoints[int(n / 2 + 1):], depth + 1)
+    node = {
+        'min': minPoint,
+        'max': maxPoint,
+        'triangle': splitPoint
     }
 
-def closer(currentPoint, point1, point2):
-    if point1 is None:
-        return point2
+    if n == 1:
+        return node
 
-    if point2 is None:
-        return point1
+    node['left'] = _build(ordered[:int(n / 2)], depth + 1)
+    node['right'] = _build(ordered[int(n / 2 + 1):], depth + 1)
 
-    distance1 = geom.distance(currentPoint, point1)
-    distance2 = geom.distance(currentPoint, point2)
+    return node
 
-    return point1 if distance1 < distance2 else point2
+def boundingBox(triangles):
+    xSorted = list(map(lambda triangle:
+        sorted(triangle, key = lambda point: point[0]), triangles))
+    ySorted = list(map(lambda triangle:
+        sorted(triangle, key = lambda point: point[1]), triangles))
+    zSorted = list(map(lambda triangle:
+        sorted(triangle, key = lambda point: point[2]), triangles))
 
-def closestPoint(root, point, dimension, depth = 0):
-    if root is None:
-        return None
+    xmin = min(xSorted, key = lambda point: point[0][0])[0][0]
+    ymin = min(ySorted, key = lambda point: point[0][1])[0][1]
+    zmin = min(zSorted, key = lambda point: point[0][2])[0][2]
+    xmax = max(xSorted, key = lambda point: point[3][0])[3][0]
+    ymax = max(ySorted, key = lambda point: point[3][1])[3][1]
+    zmax = max(zSorted, key = lambda point: point[3][2])[3][2]
 
-    axis = depth % dimension
-    nextBranch = None
-    oppositeBranch = None
-
-    if point[axis] < root['point'][axis]:
-        nextBranch = root['left']
-        oppositeBranch = root['right']
-    else:
-        nextBranch = root['right']
-        oppositeBranch = root['left']
-
-    closest = closer(point, closestPoint(nextBranch, point, depth + 1), root['point'])
-
-    if geom.distance(point, closest) > abs(point[axis] - root['point'][axis]):
-        closest = closer(point, closestPoint(oppositeBranch, point, depth + 1), closest)
-
-    return closest
+    return (xmin, ymin, zmin), (xmax, ymax, zmax)
