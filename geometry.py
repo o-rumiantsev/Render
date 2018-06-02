@@ -93,6 +93,51 @@ def plane(points):
 
     return A, B, C, D
 
+# Determine whether point belongs to facet
+#
+def accessory(point, facet):
+    x, y, z = point
+    s = 0
+
+    for i in range(len(facet) - 1):
+        s += square(point, facet[i], facet[i + 1])
+
+    s += square(point, facet[-1], facet[0])
+
+    return s <= polygonSquare(facet) + error
+
+# Square of polygon
+#
+def polygonSquare(facet):
+    s = 0
+    point = facet[0]
+
+    for i in range(1, len(facet) - 1):
+        s += square(point, facet[i], facet[i + 1])
+
+    return s
+
+# Square of triangle
+#
+def square(point1, point2, point3):
+    a = distance(point1, point2)
+    b = distance(point2, point3)
+    c = distance(point1, point3)
+
+    p = (a + b + c) / 2
+
+    return math.sqrt(abs((p * (p - a) * (p - b) * (p - c))))
+
+# Distance between two points
+#
+def distance(point1, point2):
+    x1, y1, z1 = point1
+    x2, y2, z2 = point2
+
+    d = sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1)
+
+    return math.sqrt(d)
+
 # Cosinus of angle between line and plane
 #
 def cosLinePlaneAngle(facet, normal, lightPos):

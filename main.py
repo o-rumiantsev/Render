@@ -1,6 +1,7 @@
 import parserObj
 import tracing as tr
 import geometry as geom
+import KDTree
 import output
 from time import time
 
