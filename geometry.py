@@ -128,6 +128,19 @@ def square(point1, point2, point3):
 
     return math.sqrt(abs((p * (p - a) * (p - b) * (p - c))))
 
+# Centre of triangle
+#
+def centroid(points):
+    x1, y1, z1 = points[0]
+    x2, y2, z2 = points[1]
+    x3, y3, z3 = points[2]
+
+    xCentre = (x1 + x2 + x3) / 3
+    yCentre = (y1 + y2 + y3) / 3
+    zCentre = (z1 + z2 + z3) / 3
+
+    return xCentre, yCentre, zCentre
+
 # Distance between two points
 #
 def distance(point1, point2):
