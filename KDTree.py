@@ -2,6 +2,16 @@ from geometry import centroid, intersection, rayBoxIntersection
 
 DIMENSIONS = 3
 
+def buildTree(facets, normals):
+    for i in range(len(facets)):
+        facets[i] = {
+            'triangle': facets[i],
+            'normal': normals[i]
+        }
+
+    return build(facets)
+
+
 def build(facets):
     for i in range(len(facets)):
        facets[i]['triangle'].append(centroid(facets[i]['triangle']))
@@ -86,8 +96,10 @@ def findIntersection(point1, point2, tree, depth = 0):
 
     if intersectLeft:
         return findIntersection(point1, point2, tree['left'], depth + 1)
-    else:
+    elif intersectRight:
         return findIntersection(point1, point2, tree['right'], depth + 1)
+    else:
+        return float('inf'), None
 
 def replaceValue(immutable, index, value):
     changed = list(immutable)

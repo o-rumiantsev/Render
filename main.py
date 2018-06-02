@@ -1,3 +1,4 @@
+
 import parserObj
 import tracing as tr
 import geometry as geom
@@ -9,25 +10,19 @@ import pprint
 pp = pprint.PrettyPrinter(indent=1)
 
 start = time()
-vertices, facets = parserObj.getObjectConfig('./objects/cow.obj')
+vertices, facets = parserObj.getObjectConfig('./objects/triangle.obj')
 
 cameraPos = (0, -2, 0)
 lightPos = (0, 0, 3)
-size = (256, 256)
+size = (64, 64)
 distance = 1
 
 imagePlane = tr.buildImagePlane(size, cameraPos, distance)
 normals = [geom.plane(facet) for facet in facets]
+tree = KDTree.buildTree(facets, normals)
 
-for i in range(len(facets)):
-    facets[i] = {
-        'triangle': facets[i],
-        'normal': normals[i]
-    }
-
-tree = KDTree.build(facets)
-
+# pp.pprint(tree)
 image = tr.render(cameraPos, lightPos, imagePlane, facets, tree)
 print(time() - start)
 
-output.writeToBMP(image, size, 'cow.bmp')
+output.writeToBMP(image, size, 'triangle.bmp')

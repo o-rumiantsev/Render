@@ -33,7 +33,8 @@ def colorify(cameraPos, pixel, lightPos, facets, tree):
     bit = 255
 
     if facet:
-        bit = buildShadow(lightPos, facet, normal, facets)
+        bit = 0
+    #     bit = buildShadow(lightPos, facet, normal, facets)
 
     return bit
 
