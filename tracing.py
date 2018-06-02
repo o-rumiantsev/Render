@@ -21,46 +21,50 @@ def buildImagePlane(size, cameraPos, distance):
     return imagePlane
 
 def render(cameraPos, lightPos, imagePlane, normals, facets):
-    image = []
-    for row in imagePlane:
-        pixelRow = []
-        for pixel in row:
-            point, normal = findIntersections(cameraPos, pixel, normals, facets)
-            bit = 255
-
-            if point:
-                bit = buildShadow(point, lightPos, normal, normals, facets)
-
-            pixelRow.append(bit)
-
-        image.append(pixelRow)
+    image = [[colorify(cameraPos, pixel, lightPos, normals, facets)
+                for pixel in row]
+                    for row in imagePlane]
 
     return image
 
+def colorify(cameraPos, pixel, lightPos, normals, facets):
+    facet, normal = findIntersections(cameraPos, pixel, normals, facets)
+    bit = 255
+
+    if facet:
+        bit = buildShadow(lightPos, facet, normal, facets)
+
+    return bit
+
 def findIntersections(cameraPos, pixel, normals, facets):
-    minDistance = float('inf')
-    intersectionPoint = ()
-    normal = ()
+    distance = min([(geom.intersection(cameraPos, pixel, facets[i]), i)
+                    for i in range(len(facets))], key = lambda x: x[0])
 
-    for i in range(len(facets)):
-        point = geom.intersection(cameraPos, pixel, normals[i], facets[i])
-        if not point: continue
-        d = geom.distance(cameraPos, point)
-        if d < minDistance:
-            minDistance = d
-            intersectionPoint = point
-            normal = normals[i]
+    index = distance[1]
+    distance = distance[0]
 
-    if minDistance == float('inf'): return None, None
-    else: return intersectionPoint, normal
+    if distance == float('inf'): return None, None
+    else: return facets[index], normals[index]
 
-def buildShadow(point, lightPos, normal, normals, facets):
+
+shadowCache = {}
+def buildShadow(lightPos, facet, normal, facets):
+    global shadowCache
+
+    key = str([lightPos, facet, normal])
+    if key in shadowCache:
+        return shadowCache[key]
+
     shadowed = 50
     light = 200
 
     for i in range(len(facets)):
-        if geom.lightIntersection(point, lightPos, normals[i], facets[i]):
+        if facet == facets[i]: continue
+        if geom.lightIntersection(lightPos, facet, facets[i]):
+            shadowCache[key] = shadowed
             return shadowed
 
-    shadowCoeficient = geom.cosLinePlaneAngle(point, lightPos, normal)
-    return abs(shadowCoeficient) * light
+    shadowCoeficient = geom.cosLinePlaneAngle(facet, normal, lightPos)
+    shadowness = abs(shadowCoeficient) * light
+    shadowCache[key] = shadowness
+    return shadowness

@@ -1,63 +1,68 @@
 import math
 
 sqr = lambda x: math.pow(x, 2)
-error = 0.000001
+epsilon = 1e-8
+
+def vector(point1, point2):
+    x1, y1, z1 = point1
+    x2, y2, z2 = point2
+
+    vec = (x2 - x1, y2 - y1, z2 - z1)
+
+    return vec
+# [Vector1 x Vector2]
+#
+def crossProduct(vec1, vec2):
+    x = vec1[1] * vec2[2] - vec1[2] * vec2[1]
+    y = vec1[2] * vec2[0] - vec1[0] * vec2[2]
+    z = vec1[0] * vec2[1] - vec1[1] * vec2[0]
+    return (x, y, z)
+
+# (Vector1 * Vector2)
+#
+def dotProduct(vec1, vec2):
+    x = vec1[0] * vec2[0]
+    y = vec1[1] * vec2[1]
+    z = vec1[2] * vec2[2]
+    return x + y + z
 
 # Find point of intersection
 #
-def intersection(point1, point2, plane, facet):
-    x1, y1, z1 = point1
-    x2, y2, z2 = point2
+def intersection(point1, point2, facet):
+    origin = point1
+    direction = vector(point1, point2)
 
-    A, B, C, D = plane
+    edge1 = vector(facet[0], facet[1])
+    edge2 = vector(facet[0], facet[2])
 
-    m = x2 - x1
-    n = y2 - y1
-    p = z2 - z1
+    pvec = crossProduct(direction, edge2)
+    det = dotProduct(edge1, pvec)
 
-    if A * m + B * n + C * p == 0: return None
+    if det < epsilon and det > -epsilon:
+        return float('inf')
 
-    t = -(A * x1 + B * y1 + C * z1 + D) / (A * m + B * n + C * p)
+    tvec = vector(facet[0], origin)
+    u = dotProduct(tvec, pvec) / det
 
-    x = x1 + m * t
-    y = y1 + n * t
-    z = z1 + p * t
+    if u < 0 or u > 1:
+        return float('inf')
 
-    point = (x, y, z)
+    qvec = crossProduct(tvec, edge1)
+    v = dotProduct(direction, qvec) / det
 
-    if accessory(point, facet): return point
-    else: return None
+    if v < 0 or u + v > 1:
+        return float('inf')
 
-def lightIntersection(point1, point2, plane, facet):
-    x1, y1, z1 = point1
-    x2, y2, z2 = point2
-
-    dist = distance(point1, point2) - error
-    A, B, C, D = plane
-
-    m = x2 - x1
-    n = y2 - y1
-    p = z2 - z1
-
-    if A * m + B * n + C * p == 0: return None
-
-    t = -(A * x1 + B * y1 + C * z1 + D) / (A * m + B * n + C * p)
-
-    x = x1 + m * t
-    y = y1 + n * t
-    z = z1 + p * t
-
-    point = (x, y, z)
-
-    if distance(point, point1) > dist or distance(point, point2) > dist:
-        return None
-
-    if accessory(point, facet) and point != point1: return point
-    else: return None
+    distance = dotProduct(edge2, qvec) / det
+    return distance
 
 
-# Builds flat equation for given points
-#
+def lightIntersection(lightPos, vertices, facet):
+    point1 = vertices[0]
+    point2 = lightPos
+
+    return intersection(point1, point2, facet)
+
 def plane(points):
     x1, y1, z1 = points[0]
     x2, y2, z2 = points[1]
@@ -70,56 +75,11 @@ def plane(points):
 
     return A, B, C, D
 
-# Determine whether point belongs to facet
-#
-def accessory(point, facet):
-    x, y, z = point
-    s = 0
-
-    for i in range(len(facet) - 1):
-        s += square(point, facet[i], facet[i + 1])
-
-    s += square(point, facet[-1], facet[0])
-
-    return s <= polygonSquare(facet) + error
-
-# Square of polygon
-#
-def polygonSquare(facet):
-    s = 0
-    point = facet[0]
-
-    for i in range(1, len(facet) - 1):
-        s += square(point, facet[i], facet[i + 1])
-
-    return s
-
-# Square of triangle
-#
-def square(point1, point2, point3):
-    a = distance(point1, point2)
-    b = distance(point2, point3)
-    c = distance(point1, point3)
-
-    p = (a + b + c) / 2
-
-    return math.sqrt(abs((p * (p - a) * (p - b) * (p - c))))
-
-# Distance between two points
-#
-def distance(point1, point2):
-    x1, y1, z1 = point1
-    x2, y2, z2 = point2
-
-    d = sqr(x2 - x1) + sqr(y2 - y1) + sqr(z2 - z1)
-
-    return math.sqrt(d)
-
 # Cosinus of angle between line and plane
 #
-def cosLinePlaneAngle(point1, point2, normal):
-    x1, y1, z1 = point1
-    x2, y2, z2 = point2
+def cosLinePlaneAngle(facet, normal, lightPos):
+    x1, y1, z1 = facet[0]
+    x2, y2, z2 = lightPos
 
     A, B, C, D = normal
 
