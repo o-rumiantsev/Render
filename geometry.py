@@ -10,6 +10,7 @@ def vector(point1, point2):
     vec = (x2 - x1, y2 - y1, z2 - z1)
 
     return vec
+
 # [Vector1 x Vector2]
 #
 def crossProduct(vec1, vec2):
@@ -91,3 +92,42 @@ def cosLinePlaneAngle(facet, normal, lightPos):
     len2 = math.sqrt(sqr(m) + sqr(n) + sqr(p))
 
     return abs(A * m + B * n + C * p) / (len1 * len2)
+
+# Intersection between ray and box
+#
+def rayBoxIntersection(point1, point2, box):
+    minPoint = box[0]
+    maxPoint = box[1]
+
+    facets = getTrianglesFromBox(minPoint, maxPoint)
+    closest = min([intersection(point1, point2, facet) for facet in facets])
+
+    return closest != float('inf')
+
+def getTrianglesFromBox(minPoint, maxPoint):
+    x0, y0, z0 = minPoint
+    x1, y1, z1 = maxPoint
+
+    v1 = minPoint
+    v2 = (x0, y0, z1)
+    v3 = (x0, y1, z1)
+    v4 = (x0, y1, z0)
+    v5 = (x1, y0, z0)
+    v6 = (x1, y0, z1)
+    v7 = maxPoint
+    v8 = (x1, y1, z0)
+
+    triangles = [
+        (v1, v2, v3),
+        (v1, v4, v3),
+        (v1, v5, v6),
+        (v1, v6, v2),
+        (v1, v4, v8),
+        (v1, v8, v5),
+        (v2, v3, v7),
+        (v2, v7, v6),
+        (v5, v6, v7),
+        (v5, v7, v8)
+    ]
+
+    return triangles
