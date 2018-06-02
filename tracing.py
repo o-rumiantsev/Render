@@ -1,4 +1,4 @@
-import geometry as geom
+from geometry import intersection, lightIntersection, cosLinePlaneAngle
 
 def buildImagePlane(size, cameraPos, distance):
     xmax = size[0] / 2
@@ -37,7 +37,7 @@ def colorify(cameraPos, pixel, lightPos, normals, facets):
     return bit
 
 def findIntersections(cameraPos, pixel, normals, facets):
-    distance = min([(geom.intersection(cameraPos, pixel, facets[i]), i)
+    distance = min([(intersection(cameraPos, pixel, facets[i]), i)
                     for i in range(len(facets))], key = lambda x: x[0])
 
     index = distance[1]
@@ -57,14 +57,16 @@ def buildShadow(lightPos, facet, normal, facets):
 
     shadowed = 50
     light = 200
+    # 
+    # for i in range(len(facets)):
+    #     if facet == facets[i]: continue
+    #     distance = lightIntersection(lightPos, facet, facets[i])
+    #     print(distance)
+    #     if distance == float('inf') or distance == 0:
+    #         shadowCache[key] = shadowed
+    #         return shadowed
 
-    for i in range(len(facets)):
-        if facet == facets[i]: continue
-        if geom.lightIntersection(lightPos, facet, facets[i]):
-            shadowCache[key] = shadowed
-            return shadowed
-
-    shadowCoeficient = geom.cosLinePlaneAngle(facet, normal, lightPos)
-    shadowness = abs(shadowCoeficient) * light
-    shadowCache[key] = shadowness
-    return shadowness
+    shadowCoeficient = cosLinePlaneAngle(facet, normal, lightPos)
+    shader = abs(shadowCoeficient) * light
+    shadowCache[key] = shader
+    return shader

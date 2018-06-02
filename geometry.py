@@ -11,6 +11,19 @@ def vector(point1, point2):
 
     return vec
 
+# Vector1 + Vector2
+#
+def vectorSum(vec1, vec2):
+    x = vec1[0] + vec2[0]
+    y = vec1[1] + vec2[1]
+    z = vec1[2] + vec2[2]
+    return (x, y, z)
+
+# Vector * Number
+#
+def multiplyVector(vector, number):
+    return tuple(map(lambda v: v * number, vector))
+
 # [Vector1 x Vector2]
 #
 def crossProduct(vec1, vec2):
@@ -59,7 +72,11 @@ def intersection(point1, point2, facet):
 
 
 def lightIntersection(lightPos, vertices, facet):
-    point1 = vertices[0]
+    edge1 = vector(vertices[0], vertices[1])
+    edge2 = vector(vertices[0], vertices[2])
+
+    diagonal = vectorSum(edge1, edge2)
+    point1 = vectorSum(vertices[0], multiplyVector(diagonal, 0.0001))
     point2 = lightPos
 
     return intersection(point1, point2, facet)
@@ -90,8 +107,9 @@ def cosLinePlaneAngle(facet, normal, lightPos):
 
     len1 = math.sqrt(sqr(A) + sqr(B) + sqr(C))
     len2 = math.sqrt(sqr(m) + sqr(n) + sqr(p))
+    cos = abs(A * m + B * n + C * p) / (len1 * len2)
 
-    return abs(A * m + B * n + C * p) / (len1 * len2)
+    return cos
 
 # Intersection between ray and box
 #

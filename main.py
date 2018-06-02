@@ -8,8 +8,8 @@ start = time()
 vertices, facets = parserObj.getObjectConfig('./objects/cow.obj')
 
 cameraPos = (0, -2, 0)
-lightPos = (0, 0, 0.5)
-size = (256, 128)
+lightPos = (0, 0, 3)
+size = (256, 256)
 distance = 1
 
 imagePlane = tr.buildImagePlane(size, cameraPos, distance)
