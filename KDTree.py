@@ -79,29 +79,49 @@ def findIntersection(point1, point2, tree, depth = 0):
     if distance != float('inf'):
         return distance, tree['split']
 
-    splitPoint1 = triangle[3]
-    splitPoint2 = replaceValue(tree['min'], axis, splitPoint1[axis])
-    splitPoint3 = replaceValue(tree['max'], axis, splitPoint1[axis])
-    splitFacet = (splitPoint1, splitPoint2, splitPoint3)
-    distanceToSplitFacet = intersection(point1, point2, splitFacet)
+    intersectLeft = float('inf')
+    intersectRight = float('inf')
 
-    intersectLeft = rayBoxIntersection(point1, point2, (tree['min'], splitPoint3))
-    intersectRight = rayBoxIntersection(point1, point2, (tree['max'], splitPoint2))
-
-    if distanceToSplitFacet != float('inf'):
-        distanceL, triangleL = findIntersection(point1, point2, tree['left'], depth + 1)
-        distanceR, triangleR = findIntersection(point1, point2, tree['right'], depth + 1)
-        if distanceL < distanceR: return distanceL, triangleL
-        else: return distanceR, triangleR
-
-    if intersectLeft:
-        return findIntersection(point1, point2, tree['left'], depth + 1)
-    elif intersectRight:
-        return findIntersection(point1, point2, tree['right'], depth + 1)
+    if tree['left'] == None:
+        if tree['right'] != None:
+            intersectRight = rayBoxIntersection(
+                point1, point2, (tree['right']['min'], tree['right']['max'])
+            )
     else:
-        return float('inf'), None
+        intersectLeft = rayBoxIntersection(
+            point1, point2, (tree['left']['min'], tree['left']['max'])
+        )
+        if tree['right'] != None:
+            intersectRight = rayBoxIntersection(
+                point1, point2, (tree['right']['min'], tree['right']['max'])
+            )
 
-def replaceValue(immutable, index, value):
-    changed = list(immutable)
-    changed[index] = value
-    return tuple(changed)
+    closest = {
+        'dist': float('inf'),
+        'dir': None
+    }
+
+    further = {
+        'dist': float('inf'),
+        'dir': None
+    }
+
+    if intersectLeft > intersectRight:
+        closest['dist'] = intersectRight
+        further['dist'] = intersectLeft
+        closest['dir'] = 'right'
+        further['dir'] = 'left'
+    else:
+        closest['dist'] = intersectLeft
+        further['dist'] = intersectRight
+        closest['dir'] = 'left'
+        further['dir'] = 'right'
+
+    if closest['dist'] != float('inf'):
+        distC, triangleC = findIntersection(point1, point2, tree[closest['dir']], depth + 1)
+        if distC == float('inf') and further['dist'] != float('inf'):
+            return findIntersection(point1, point2, tree[further['dir']], depth + 1)
+        else:
+            return distC, triangleC
+
+    return float('inf'), None

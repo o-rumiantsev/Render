@@ -93,40 +93,6 @@ def plane(points):
 
     return A, B, C, D
 
-# Determine whether point belongs to facet
-#
-def accessory(point, facet):
-    x, y, z = point
-    s = 0
-
-    for i in range(len(facet) - 1):
-        s += square(point, facet[i], facet[i + 1])
-
-    s += square(point, facet[-1], facet[0])
-
-    return s <= polygonSquare(facet) + error
-
-# Square of polygon
-#
-def polygonSquare(facet):
-    s = 0
-    point = facet[0]
-
-    for i in range(1, len(facet) - 1):
-        s += square(point, facet[i], facet[i + 1])
-
-    return s
-
-# Square of triangle
-#
-def square(point1, point2, point3):
-    a = distance(point1, point2)
-    b = distance(point2, point3)
-    c = distance(point1, point3)
-
-    p = (a + b + c) / 2
-
-    return math.sqrt(abs((p * (p - a) * (p - b) * (p - c))))
 
 # Centre of triangle
 #
