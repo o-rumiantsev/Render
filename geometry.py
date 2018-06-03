@@ -164,6 +164,7 @@ def rayBoxIntersection(point1, point2, box):
     else:
         Tnear = (x0 - x) / m
         Tfar = (x1 - x) / m
+        if Tnear > Tfar: Tfar, Tnear = Tnear, Tfar
 
     if n == 0:
         if y > y1 or y < y0:
@@ -172,10 +173,12 @@ def rayBoxIntersection(point1, point2, box):
         T1y = (y0 - y) / n
         T2y = (y1 - y) / n
 
+        if T1y > T2y: T2y, T1y = T1y, T2y
+
         if T1y > Tnear: Tnear = T1y
         if T2y < Tfar: Tfar = T2y
 
-    if Tnear > Tfar or Tfar == 0:
+    if Tnear > Tfar or Tfar < 0:
         return float('inf')
 
     if p == 0:
@@ -184,6 +187,8 @@ def rayBoxIntersection(point1, point2, box):
     else:
         T1z = (z0 - z) / p
         T2z = (z1 - z) / p
+
+        if T1z > T2z: T2z, T1z = T1z, T2z
 
         if T1z > Tnear: Tnear = T1z
         if T2z < Tfar: Tfar = T2z

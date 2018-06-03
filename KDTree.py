@@ -62,9 +62,7 @@ def boundingBox(facets):
 
     return (xmin, ymin, zmin), (xmax, ymax, zmax)
 
-def findIntersection(point1, point2, tree, depth = 0):
-    axis = depth % DIMENSIONS
-
+def findIntersection(point1, point2, tree):
     if tree is None:
         return float('inf'), None
 
@@ -82,19 +80,15 @@ def findIntersection(point1, point2, tree, depth = 0):
     intersectLeft = float('inf')
     intersectRight = float('inf')
 
-    if tree['left'] == None:
-        if tree['right'] != None:
-            intersectRight = rayBoxIntersection(
-                point1, point2, (tree['right']['min'], tree['right']['max'])
-            )
-    else:
+    if tree['left'] != None:
         intersectLeft = rayBoxIntersection(
             point1, point2, (tree['left']['min'], tree['left']['max'])
         )
-        if tree['right'] != None:
-            intersectRight = rayBoxIntersection(
-                point1, point2, (tree['right']['min'], tree['right']['max'])
-            )
+
+    if tree['right'] != None:
+        intersectRight = rayBoxIntersection(
+            point1, point2, (tree['right']['min'], tree['right']['max'])
+        )
 
     closest = {
         'dist': float('inf'),
@@ -118,9 +112,9 @@ def findIntersection(point1, point2, tree, depth = 0):
         further['dir'] = 'right'
 
     if closest['dist'] != float('inf'):
-        distC, triangleC = findIntersection(point1, point2, tree[closest['dir']], depth + 1)
+        distC, triangleC = findIntersection(point1, point2, tree[closest['dir']])
         if distC == float('inf') and further['dist'] != float('inf'):
-            return findIntersection(point1, point2, tree[further['dir']], depth + 1)
+            return findIntersection(point1, point2, tree[further['dir']])
         else:
             return distC, triangleC
 
