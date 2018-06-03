@@ -3,13 +3,26 @@ import math
 sqr = lambda x: math.pow(x, 2)
 epsilon = 1e-8
 
+# |Vector|
+#
+def vectorLength(vector):
+    x, y, z = vector
+    return math.sqrt(sqr(x) + sqr(y) + sqr(z))
+
+# x^2 + y^2 + z^2 = 1
+#
+def normalizeVector(vector):
+    x, y, z = vector
+    len = vectorLength(vector)
+    return (x / len, y / len, z / len)
+
 def vector(point1, point2):
     x1, y1, z1 = point1
     x2, y2, z2 = point2
 
     vec = (x2 - x1, y2 - y1, z2 - z1)
 
-    return vec
+    return normalizeVector(vec)
 
 # Vector1 + Vector2
 #
@@ -138,38 +151,44 @@ def cosLinePlaneAngle(facet, normal, lightPos):
 # Intersection between ray and box
 #
 def rayBoxIntersection(point1, point2, box):
-    minPoint = box[0]
-    maxPoint = box[1]
+    x0, y0, z0 = box[0]
+    x1, y1, z1 = box[1]
 
-    facets = getTrianglesFromBox(minPoint, maxPoint)
-    closest = min([intersection(point1, point2, facet) for facet in facets])
+    m, n, p = vector(point1, point2)
+    x, y, z = point1
 
-    return closest != float('inf')
+    Tnear, Tfar = -float('inf'), float('inf')
+    if m == 0:
+        if x > x1 or x < x0:
+            return float('inf')
+    else:
+        Tnear = (x0 - x) / m
+        Tfar = (x1 - x) / m
 
-def getTrianglesFromBox(minPoint, maxPoint):
-    x0, y0, z0 = minPoint
-    x1, y1, z1 = maxPoint
+    if n == 0:
+        if y > y1 or y < y0:
+            return float('inf')
+    else:
+        T1y = (y0 - y) / n
+        T2y = (y1 - y) / n
 
-    v1 = minPoint
-    v2 = (x0, y0, z1)
-    v3 = (x0, y1, z1)
-    v4 = (x0, y1, z0)
-    v5 = (x1, y0, z0)
-    v6 = (x1, y0, z1)
-    v7 = maxPoint
-    v8 = (x1, y1, z0)
+        if T1y > Tnear: Tnear = T1y
+        if T2y < Tfar: Tfar = T2y
 
-    triangles = [
-        (v1, v2, v3),
-        (v1, v4, v3),
-        (v1, v5, v6),
-        (v1, v6, v2),
-        (v1, v4, v8),
-        (v1, v8, v5),
-        (v2, v3, v7),
-        (v2, v7, v6),
-        (v5, v6, v7),
-        (v5, v7, v8)
-    ]
+    if Tnear > Tfar or Tfar == 0:
+        return float('inf')
 
-    return triangles
+    if p == 0:
+        if z > z1 or z < z0:
+            return float('inf')
+    else:
+        T1z = (z0 - z) / p
+        T2z = (z1 - z) / p
+
+        if T1z > Tnear: Tnear = T1z
+        if T2z < Tfar: Tfar = T2z
+
+    if Tnear > Tfar or Tfar == 0:
+        return float('inf')
+
+    return Tnear
