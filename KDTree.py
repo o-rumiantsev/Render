@@ -63,9 +63,6 @@ def boundingBox(facets):
     return (xmin, ymin, zmin), (xmax, ymax, zmax)
 
 def findIntersection(point1, point2, tree):
-    if tree is None:
-        return float('inf'), None
-
     if not 'left' in tree and not 'right' in tree:
         facet = tree['split']
         distance = intersection(point1, point2, facet['triangle'])
@@ -73,9 +70,6 @@ def findIntersection(point1, point2, tree):
 
     triangle = tree['split']['triangle']
     distance = intersection(point1, point2, triangle)
-
-    if distance != float('inf'):
-        return distance, tree['split']
 
     intersectLeft = float('inf')
     intersectRight = float('inf')
@@ -111,11 +105,18 @@ def findIntersection(point1, point2, tree):
         closest['dir'] = 'left'
         further['dir'] = 'right'
 
+    distC, triangleC = float('inf'), ()
+    distF, triangleF = float('inf'), ()
+
     if closest['dist'] != float('inf'):
         distC, triangleC = findIntersection(point1, point2, tree[closest['dir']])
         if distC == float('inf') and further['dist'] != float('inf'):
-            return findIntersection(point1, point2, tree[further['dir']])
-        else:
-            return distC, triangleC
+            distF, triangleF = findIntersection(point1, point2, tree[further['dir']])
 
-    return float('inf'), None
+    distances = [
+        (distance, tree['split']),
+        (distC, triangleC),
+        (distF, triangleF)
+    ]
+
+    return min(distances, key = lambda x: x[0])

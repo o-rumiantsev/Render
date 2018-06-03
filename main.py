@@ -10,11 +10,12 @@ import pprint
 pp = pprint.PrettyPrinter(indent=1)
 
 start = time()
-vertices, facets = parserObj.getObjectConfig('./objects/cow.obj')
+vertices, facets = parserObj.getObjectConfig('./objects/triangle.obj')
 
 cameraPos = (0, -2, 0)
 lightPos = (0, 0, 3)
-size = (5, 5)
+size = (24, 24)
+
 distance = 1
 
 imagePlane = tr.buildImagePlane(size, cameraPos, distance)
@@ -24,4 +25,4 @@ tree = KDTree.buildTree(facets, normals)
 image = tr.render(cameraPos, lightPos, imagePlane, facets, tree)
 print(time() - start)
 
-output.writeToBMP(image, size, 'images/cow.bmp')
+output.writeToBMP(image, size, 'images/triangle.bmp')
