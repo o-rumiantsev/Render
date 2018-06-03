@@ -1,4 +1,4 @@
-from geometry import intersection, lightIntersection, cosLinePlaneAngle
+from geometry import intersection, cosLinePlaneAngle
 from KDTree import findIntersection
 
 def buildImagePlane(size, cameraPos, distance):
@@ -22,30 +22,29 @@ def buildImagePlane(size, cameraPos, distance):
     return imagePlane
 
 def render(cameraPos, lightPos, imagePlane, facets, tree):
-    image = [[colorify(cameraPos, pixel, lightPos, facets, tree)
+    image = [[colorify(cameraPos, pixel, lightPos, tree)
                 for pixel in row]
                     for row in imagePlane]
 
     return image
 
-def colorify(cameraPos, pixel, lightPos, facets, tree):
+def colorify(cameraPos, pixel, lightPos, tree):
     facet, normal = findIntersections(cameraPos, pixel, tree)
     bit = 255
 
     if facet:
-        bit = 0
-    #     bit = buildShadow(lightPos, facet, normal, facets)
+        bit = buildShadow(lightPos, facet, normal, tree)
 
     return bit
 
-def findIntersections(cameraPos, pixel, tree):
-    distance, facet = findIntersection(cameraPos, pixel, tree)
+def findIntersections(point1, point2, tree):
+    distance, facet = findIntersection(point1, point2, tree)
     if distance == float('inf'): return None, None
     else: return facet['triangle'], facet['normal']
 
 
 shadowCache = {}
-def buildShadow(lightPos, facet, normal, facets):
+def buildShadow(lightPos, facet, normal, tree):
     global shadowCache
 
     key = str([lightPos, facet, normal])
@@ -54,16 +53,14 @@ def buildShadow(lightPos, facet, normal, facets):
 
     shadowed = 50
     light = 200
-    #
-    # for i in range(len(facets)):
-    #     if facet == facets[i]: continue
-    #     distance = lightIntersection(lightPos, facet, facets[i])
-    #     print(distance)
-    #     if distance == float('inf') or distance == 0:
-    #         shadowCache[key] = shadowed
-    #         return shadowed
 
-    shadowCoeficient = cosLinePlaneAngle(facet, normal, lightPos)
+    centroid = facet[3]
+    obstacle, obsNormal = findIntersections(centroid, lightPos, tree)
+    if obstacle and obstacle != facet:
+        shadowCache[key] = shadowed
+        return shadowed
+
+    shadowCoeficient = cosLinePlaneAngle(centroid, normal, lightPos)
     shader = abs(shadowCoeficient) * light
     shadowCache[key] = shader
     return shader

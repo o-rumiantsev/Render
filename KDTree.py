@@ -1,4 +1,7 @@
 from geometry import centroid, intersection, rayBoxIntersection, triangleSplitFacetIntersection
+import pprint
+
+pp = pprint.PrettyPrinter(indent = 1)
 
 DIMENSIONS = 3
 
@@ -31,18 +34,6 @@ def _build(facets, depth = 0):
     left = ordered[:int(n / 2)]
     right = ordered[int(n / 2 + 1):]
     splitPoint = ordered[int(n / 2)]
-    partlyLeft = list(filter(lambda f:
-        not triangleSplitFacetIntersection(
-            f['triangle'],
-            splitPoint['triangle'][3][axis],
-            axis), right))
-    partlyRight = list(filter(lambda f:
-        not triangleSplitFacetIntersection(
-            f['triangle'],
-            splitPoint['triangle'][3][axis],
-            axis), left))
-    left = left + partlyLeft
-    right = right + partlyRight
     minPoint, maxPoint = boundingBox(facets)
 
     node = {
@@ -77,6 +68,12 @@ def boundingBox(facets):
     return (xmin, ymin, zmin), (xmax, ymax, zmax)
 
 def findIntersection(point1, point2, tree):
+    intersect = rayBoxIntersection(
+        point1, point2, (tree['min'], tree['max'])
+    )
+
+    if intersect == float('inf'): return float('inf'), None
+
     if not 'left' in tree and not 'right' in tree:
         facet = tree['split']
         distance = intersection(point1, point2, facet['triangle'])

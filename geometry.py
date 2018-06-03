@@ -22,7 +22,7 @@ def vector(point1, point2):
 
     vec = (x2 - x1, y2 - y1, z2 - z1)
 
-    return normalizeVector(vec)
+    return vec
 
 # Vector1 + Vector2
 #
@@ -84,16 +84,6 @@ def intersection(point1, point2, facet):
     return distance
 
 
-def lightIntersection(lightPos, vertices, facet):
-    edge1 = vector(vertices[0], vertices[1])
-    edge2 = vector(vertices[0], vertices[2])
-
-    diagonal = vectorSum(edge1, edge2)
-    point1 = vectorSum(vertices[0], multiplyVector(diagonal, 0.0001))
-    point2 = lightPos
-
-    return intersection(point1, point2, facet)
-
 def plane(points):
     x1, y1, z1 = points[0]
     x2, y2, z2 = points[1]
@@ -132,15 +122,10 @@ def distance(point1, point2):
 
 # Cosinus of angle between line and plane
 #
-def cosLinePlaneAngle(facet, normal, lightPos):
-    x1, y1, z1 = facet[0]
-    x2, y2, z2 = lightPos
-
+def cosLinePlaneAngle(centroid, normal, lightPos):
     A, B, C, D = normal
 
-    m = x2 - x1
-    n = y2 - y1
-    p = z2 - z1
+    m, n, p = vector(centroid, lightPos)
 
     len1 = math.sqrt(sqr(A) + sqr(B) + sqr(C))
     len2 = math.sqrt(sqr(m) + sqr(n) + sqr(p))
@@ -154,7 +139,7 @@ def rayBoxIntersection(point1, point2, box):
     x0, y0, z0 = box[0]
     x1, y1, z1 = box[1]
 
-    m, n, p = vector(point1, point2)
+    m, n, p = normalizeVector(vector(point1, point2))
     x, y, z = point1
 
     Tnear, Tfar = -float('inf'), float('inf')
