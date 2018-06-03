@@ -1,4 +1,4 @@
-from geometry import centroid, intersection, rayBoxIntersection
+from geometry import centroid, intersection, rayBoxIntersection, triangleSplitFacetIntersection
 
 DIMENSIONS = 3
 
@@ -28,7 +28,21 @@ def _build(facets, depth = 0):
 
     axis = depth % DIMENSIONS
     ordered = sorted(facets, key = lambda f: f['triangle'][3][axis])
+    left = ordered[:int(n / 2)]
+    right = ordered[int(n / 2 + 1):]
     splitPoint = ordered[int(n / 2)]
+    partlyLeft = list(filter(lambda f:
+        not triangleSplitFacetIntersection(
+            f['triangle'],
+            splitPoint['triangle'][3][axis],
+            axis), right))
+    partlyRight = list(filter(lambda f:
+        not triangleSplitFacetIntersection(
+            f['triangle'],
+            splitPoint['triangle'][3][axis],
+            axis), left))
+    left = left + partlyLeft
+    right = right + partlyRight
     minPoint, maxPoint = boundingBox(facets)
 
     node = {
@@ -40,8 +54,8 @@ def _build(facets, depth = 0):
     if n == 1:
         return node
 
-    node['left'] = _build(ordered[:int(n / 2)], depth + 1)
-    node['right'] = _build(ordered[int(n / 2 + 1):], depth + 1)
+    node['left'] = _build(left, depth + 1)
+    node['right'] = _build(right, depth + 1)
 
     return node
 

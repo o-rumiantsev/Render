@@ -197,3 +197,9 @@ def rayBoxIntersection(point1, point2, box):
         return float('inf')
 
     return Tnear
+
+def triangleSplitFacetIntersection(triangle, constCoordinate, axis):
+    ordered = sorted(triangle, key = lambda p: p[axis])
+
+    return (constCoordinate < ordered[0][axis]
+            or ordered[3][axis] < constCoordinate)
