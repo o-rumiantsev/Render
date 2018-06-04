@@ -122,10 +122,10 @@ def distance(point1, point2):
 
 # Cosinus of angle between line and plane
 #
-def cosLinePlaneAngle(centroid, normal, lightPos):
+def cosLinePlaneAngle(lightPos, centroid, normal):
     A, B, C, D = normal
 
-    m, n, p = vector(centroid, lightPos)
+    m, n, p = vector(lightPos, centroid)
 
     len1 = math.sqrt(sqr(A) + sqr(B) + sqr(C))
     len2 = math.sqrt(sqr(m) + sqr(n) + sqr(p))

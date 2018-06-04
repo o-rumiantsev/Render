@@ -51,16 +51,16 @@ def buildShadow(lightPos, facet, normal, tree):
     if key in shadowCache:
         return shadowCache[key]
 
-    shadowed = 50
+    shadowed = 10
     light = 200
 
     centroid = facet[3]
-    obstacle, obsNormal = findIntersections(centroid, lightPos, tree)
+    obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
     if obstacle and obstacle != facet:
         shadowCache[key] = shadowed
         return shadowed
 
-    shadowCoeficient = cosLinePlaneAngle(centroid, normal, lightPos)
+    shadowCoeficient = cosLinePlaneAngle(lightPos, centroid, normal)
     shader = abs(shadowCoeficient) * light
     shadowCache[key] = shader
     return shader
