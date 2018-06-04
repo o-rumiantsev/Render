@@ -1,4 +1,5 @@
-from geometry import intersection, lightIntersection, cosLinePlaneAngle
+from geometry import intersection, cosLinePlaneAngle
+from KDTree import findIntersection
 
 def buildImagePlane(size, cameraPos, distance):
     xmax = size[0] / 2
@@ -20,53 +21,46 @@ def buildImagePlane(size, cameraPos, distance):
 
     return imagePlane
 
-def render(cameraPos, lightPos, imagePlane, normals, facets):
-    image = [[colorify(cameraPos, pixel, lightPos, normals, facets)
+def render(cameraPos, lightPos, imagePlane, facets, tree):
+    image = [[colorify(cameraPos, pixel, lightPos, tree)
                 for pixel in row]
                     for row in imagePlane]
 
     return image
 
-def colorify(cameraPos, pixel, lightPos, normals, facets):
-    facet, normal = findIntersections(cameraPos, pixel, normals, facets)
+def colorify(cameraPos, pixel, lightPos, tree):
+    facet, normal = findIntersections(cameraPos, pixel, tree)
     bit = 255
 
     if facet:
-        bit = buildShadow(lightPos, facet, normal, facets)
+        bit = buildShadow(lightPos, facet, normal, tree)
 
     return bit
 
-def findIntersections(cameraPos, pixel, normals, facets):
-    distance = min([(intersection(cameraPos, pixel, facets[i]), i)
-                    for i in range(len(facets))], key = lambda x: x[0])
-
-    index = distance[1]
-    distance = distance[0]
-
+def findIntersections(point1, point2, tree):
+    distance, facet = findIntersection(point1, point2, tree)
     if distance == float('inf'): return None, None
-    else: return facets[index], normals[index]
+    else: return facet['triangle'], facet['normal']
 
 
 shadowCache = {}
-def buildShadow(lightPos, facet, normal, facets):
+def buildShadow(lightPos, facet, normal, tree):
     global shadowCache
 
     key = str([lightPos, facet, normal])
     if key in shadowCache:
         return shadowCache[key]
 
-    shadowed = 50
+    shadowed = 10
     light = 200
-    # 
-    # for i in range(len(facets)):
-    #     if facet == facets[i]: continue
-    #     distance = lightIntersection(lightPos, facet, facets[i])
-    #     print(distance)
-    #     if distance == float('inf') or distance == 0:
-    #         shadowCache[key] = shadowed
-    #         return shadowed
 
-    shadowCoeficient = cosLinePlaneAngle(facet, normal, lightPos)
+    centroid = facet[3]
+    obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
+    if obstacle and obstacle != facet:
+        shadowCache[key] = shadowed
+        return shadowed
+
+    shadowCoeficient = cosLinePlaneAngle(lightPos, centroid, normal)
     shader = abs(shadowCoeficient) * light
     shadowCache[key] = shader
     return shader
