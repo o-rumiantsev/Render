@@ -1,23 +1,34 @@
-from geometry import intersection, cosLinePlaneAngle
+import geometry as gm
 from KDTree import findIntersection
 
-def buildImagePlane(size, cameraPos, distance):
-    xmax = size[0] / 2
-    zmax = size[1] / 2
+def buildImagePlane(size, cameraPos, direction, distance):
+    colMax = size[0] / 2
+    rowMax = size[1] / 2
 
-    y = cameraPos[1] + distance
-    z = size[1] / 2
+    viewVector = gm.multiplyVector(direction, distance)
+    imPos = gm.vectorSum(cameraPos, viewVector)
+
+    const = tuple(filter(lambda x: x != 0, viewVector))[0]
+    const = viewVector.index(const)
+
+    pixel = [0, 0, 0]
+    pixel[const] = imPos[const]
+
+    [colCoord, rowCoord] = [i for i, c in enumerate(viewVector) if c == 0]
 
     imagePlane = []
+    row = rowMax
 
-    for i in range(size[1] + 1):
-        x = -size[0] / 2
+    for i in range(size[1]):
+        col = -colMax
+        pixel[rowCoord] = row / rowMax
         imagePlane.append([])
-        for j in range(size[0] + 1):
-            imagePlane[i].append((x / xmax, y, z / zmax))
-            x += 1
+        for j in range(size[0]):
+            pixel[colCoord] = col / colMax
+            imagePlane[i].append(tuple(pixel))
+            col += 1
 
-        z -= 1
+        row -= 1
 
     return imagePlane
 
@@ -60,7 +71,7 @@ def buildShadow(lightPos, facet, normal, tree):
         shadowCache[key] = shadowed
         return shadowed
 
-    shadowCoeficient = cosLinePlaneAngle(lightPos, centroid, normal)
+    shadowCoeficient = gm.cosLinePlaneAngle(lightPos, centroid, normal)
     shader = abs(shadowCoeficient) * light
     shadowCache[key] = shader
     return shader

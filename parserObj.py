@@ -1,3 +1,14 @@
+import geometry as gm
+
+def normalize(vertices):
+    maxLenVertex = max(vertices, key = lambda v: gm.vectorLength(v))
+    maxLen = gm.vectorLength(maxLenVertex)
+
+    return list(map(
+        lambda v: (v[0] / maxLen, v[1] / maxLen, v[2] / maxLen), vertices
+    ))
+
+
 def getVertices(lines):
     vertices = []
 
@@ -34,12 +45,16 @@ def prepareFacets(vertices, facets):
     return preparedFacets
 
 
-def getObjectConfig(filename):
+def getObjectConfig(filename, normalizator = False):
     configFile = open(filename, 'r');
     lines = [line.strip().split() for line in configFile]
     configFile.close()
 
     vertices = getVertices(lines)
+
+    if normalizator:
+        vertices = normalize(vertices)
+
     facets = prepareFacets(vertices, getFacets(lines))
 
     return vertices, facets
