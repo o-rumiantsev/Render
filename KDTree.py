@@ -1,4 +1,4 @@
-from geometry import centroid, intersection, rayBoxIntersection, triangleSplitFacetIntersection
+from geometry import centroid, intersection, rayBoxIntersection
 import pprint
 
 pp = pprint.PrettyPrinter(indent = 1)

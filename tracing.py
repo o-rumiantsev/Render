@@ -32,19 +32,30 @@ def buildImagePlane(size, cameraPos, direction, distance):
 
     return imagePlane
 
-def render(cameraPos, lightPos, imagePlane, facets, tree):
+def render(cameraPos, lightPos, imagePlane, tree):
     image = [[colorify(cameraPos, pixel, lightPos, tree)
                 for pixel in row]
                     for row in imagePlane]
 
     return image
 
+colorCache = {}
 def colorify(cameraPos, pixel, lightPos, tree):
-    facet, normal = findIntersections(cameraPos, pixel, tree)
     bit = 255
+    light = 200
+
+    facet, normal = findIntersections(cameraPos, pixel, tree)
 
     if facet:
-        bit = buildShadow(lightPos, facet, normal, tree)
+        key = str(facet)
+        if key in colorCache:
+            bit = colorCache[key]
+
+        centroid = facet[3]
+        shadowCoeficient = gm.cosLinePlaneAngle(cameraPos, centroid, normal)
+        bit = abs(shadowCoeficient) * light
+        colorCache[key] = bit
+        # bit = buildShadow(lightPos, facet, normal, tree)
 
     return bit
 
@@ -66,7 +77,12 @@ def buildShadow(lightPos, facet, normal, tree):
     light = 200
 
     centroid = facet[3]
-    obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
+    epsilon = 0.0001
+
+    shadowVector = gm.multiplyVector(gm.vector(lightPos, centroid), epsilon)
+    shaderPoint = gm.vectorSum(lightPos, shadowVector)
+
+    obstacle, obsNormal = findIntersections(lightPos, shaderPoint, tree)
     if obstacle and obstacle != facet:
         shadowCache[key] = shadowed
         return shadowed
