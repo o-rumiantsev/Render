@@ -47,7 +47,8 @@ def colorify(cameraPos, pixel, lightPos, tree):
     facet, normal = findIntersections(cameraPos, pixel, tree)
 
     if facet:
-        px = gm.multiplyVector(normal, 255)
+        color = gm.multiplyVector(gm.vectorSum(normal, gm.ones()), 0.5)
+        px = gm.multiplyVector(color, 255)
         # key = str(facet)
         # if key in colorCache:
         #     px = colorCache[key]

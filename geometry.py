@@ -3,6 +3,9 @@ import math
 sqr = lambda x: math.pow(x, 2)
 epsilon = 1e-8
 
+def ones():
+    return (1, 1, 1)
+
 # |Vector|
 #
 def vectorLength(vector):
