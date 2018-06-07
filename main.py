@@ -8,17 +8,16 @@ from time import time
 start = time()
 facets = parserObj.getObjectConfig('./objects/cow.obj', True)
 
-cameraPos = (0, 1.5, 0)
-direction = (0, -1, 0)
+cameraPos = (0, -1, 0)
+direction = (0, 1, 0)
 lightPos = (0, -2, 0)
-size = (1024, 1024)
+size = (512, 512)
 distance = 1
 
 imagePlane = tr.buildImagePlane(size, cameraPos, direction, distance)
-normals = [geom.plane(facet) for facet in facets]
-tree = KDTree.buildTree(facets, normals)
+tree = KDTree.buildTree(facets)
 
 image = tr.render(cameraPos, lightPos, imagePlane, tree)
 print(time() - start)
 
-output.writeToBMP(image, size, 'images/cow2.0.bmp')
+output.writeToBMP(image, size, 'images/cow3.bmp')

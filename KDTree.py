@@ -5,12 +5,12 @@ pp = pprint.PrettyPrinter(indent = 1)
 
 DIMENSIONS = 3
 
-def buildTree(facets, normals):
-    for i in range(len(facets)):
-        facets[i] = {
-            'triangle': facets[i],
-            'normal': normals[i]
-        }
+def buildTree(facets):
+    # for i in range(len(facets)):
+    #     facets[i] = {
+    #         'triangle': facets[i],
+    #         'normal': normals[i]
+    #     }
 
     return build(facets)
 

@@ -84,19 +84,6 @@ def intersection(point1, point2, facet):
     return distance
 
 
-def plane(points):
-    x1, y1, z1 = points[0]
-    x2, y2, z2 = points[1]
-    x3, y3, z3 = points[2]
-
-    A = (y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1)
-    B = (x3 - x1) * (z2 - z1) - (x2 - x1) * (z3 - z1)
-    C = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
-    D = -(A * x1 + B * y1 + C * z1)
-
-    return A, B, C, D
-
-
 # Centre of triangle
 #
 def centroid(points):
@@ -109,6 +96,14 @@ def centroid(points):
     zCentre = (z1 + z2 + z3) / 3
 
     return xCentre, yCentre, zCentre
+
+# Compute avarage normal direction
+#
+def avarageNormal(normals):
+    norm1, norm2, norm3 = normals
+    normal = vectorSum(norm1, norm2)
+    normal = vectorSum(normal, norm3)
+    return normalizeVector(normal)
 
 # Distance between two points
 #

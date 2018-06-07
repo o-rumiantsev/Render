@@ -39,25 +39,26 @@ def render(cameraPos, lightPos, imagePlane, tree):
 
     return image
 
-colorCache = {}
+# colorCache = {}
 def colorify(cameraPos, pixel, lightPos, tree):
-    bit = 255
+    px = (255, 255, 255)
     light = 200
 
     facet, normal = findIntersections(cameraPos, pixel, tree)
 
     if facet:
-        key = str(facet)
-        if key in colorCache:
-            bit = colorCache[key]
+        px = gm.multiplyVector(normal, 255)
+        # key = str(facet)
+        # if key in colorCache:
+        #     px = colorCache[key]
+        #
+        # centroid = facet[3]
+        # shadowCoeficient = gm.cosLinePlaneAngle(cameraPos, centroid, normal)
+        # px = abs(shadowCoeficient) * light
+        # colorCache[key] = px
+        # px = buildShadow(lightPos, facet, normal, tree)
 
-        centroid = facet[3]
-        shadowCoeficient = gm.cosLinePlaneAngle(cameraPos, centroid, normal)
-        bit = abs(shadowCoeficient) * light
-        colorCache[key] = bit
-        # bit = buildShadow(lightPos, facet, normal, tree)
-
-    return bit
+    return px
 
 def findIntersections(point1, point2, tree):
     distance, facet = findIntersection(point1, point2, tree)
@@ -79,13 +80,13 @@ def buildShadow(lightPos, facet, normal, tree):
     centroid = facet[3]
     epsilon = 0.0001
 
-    shadowVector = gm.multiplyVector(gm.vector(lightPos, centroid), epsilon)
-    shaderPoint = gm.vectorSum(lightPos, shadowVector)
+    # shadowVector = gm.multiplyVector(gm.vector(lightPos, centroid), epsilon)
+    # shaderPoint = gm.vectorSum(lightPos, shadowVector)
 
-    obstacle, obsNormal = findIntersections(lightPos, shaderPoint, tree)
-    if obstacle and obstacle != facet:
-        shadowCache[key] = shadowed
-        return shadowed
+    # obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
+    # if obstacle and obstacle != facet:
+    #     shadowCache[key] = shadowed
+    #     return shadowed
 
     shadowCoeficient = gm.cosLinePlaneAngle(lightPos, centroid, normal)
     shader = abs(shadowCoeficient) * light
