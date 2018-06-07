@@ -6,7 +6,7 @@ import output
 from time import time
 
 start = time()
-vertices, facets = parserObj.getObjectConfig('./objects/cow.obj', True)
+facets = parserObj.getObjectConfig('./objects/cow.obj', True)
 
 cameraPos = (0, 1.5, 0)
 direction = (0, -1, 0)

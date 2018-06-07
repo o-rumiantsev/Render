@@ -1,14 +1,3 @@
-import geometry as gm
-
-def normalize(vertices):
-    maxLenVertex = max(vertices, key = lambda v: gm.vectorLength(v))
-    maxLen = gm.vectorLength(maxLenVertex)
-
-    return list(map(
-        lambda v: (v[0] / maxLen, v[1] / maxLen, v[2] / maxLen), vertices
-    ))
-
-
 def getVertices(lines):
     vertices = []
 
@@ -22,6 +11,19 @@ def getVertices(lines):
 
     return vertices
 
+def getNormals(lines):
+    normals = []
+
+    for line in lines:
+        if not len(line): continue
+
+        if line[0] == 'vn':
+            line = [float(value) for value in line[1:]]
+            normal = tuple(line)
+            normals.append(normal)
+
+    return normals
+
 def getFacets(lines):
     facets = []
 
@@ -29,32 +31,31 @@ def getFacets(lines):
         if not len(line): continue
 
         if line[0] == 'f':
-            line = [int(value.split('/')[0]) for value in line[1:]]
-            facet = tuple(line)
+            vertices = [int(value.split('/')[0]) for value in line[1:]]
+            normals = [int(value.split('/')[2]) for value in line[1:]]
+            facet = (tuple(vertices), tuple(normals))
             facets.append(facet)
 
     return facets
 
-def prepareFacets(vertices, facets):
+def prepareFacets(vertices, normals, facets):
     preparedFacets = []
 
     for facet in facets:
-        prepared = [vertices[index - 1] for index in facet]
-        preparedFacets.append(prepared)
+        preparedVertices = [vertices[index - 1] for index in facet[0]]
+        preparedNormals = [normals[index - 1] for index in facet[1]]
+        preparedFacets.append([preparedVertices, preparedNormals])
 
     return preparedFacets
 
 
-def getObjectConfig(filename, normalizator = False):
+def getObjectConfig(filename):
     configFile = open(filename, 'r');
     lines = [line.strip().split() for line in configFile]
     configFile.close()
 
     vertices = getVertices(lines)
+    normals = getNormals(lines)
+    facets = prepareFacets(vertices, normals, getFacets(lines))
 
-    if normalizator:
-        vertices = normalize(vertices)
-
-    facets = prepareFacets(vertices, getFacets(lines))
-
-    return vertices, facets
+    return facets
