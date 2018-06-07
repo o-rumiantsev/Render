@@ -5,17 +5,13 @@ pp = pprint.PrettyPrinter(indent = 1)
 
 DIMENSIONS = 3
 
+def triangleSplitFacetIntersection(triangle, constCoordinate, axis):
+    ordered = sorted(triangle, key = lambda p: p[axis])
+
+    return (constCoordinate < ordered[0][axis]
+            or ordered[3][axis] < constCoordinate)
+
 def buildTree(facets):
-    # for i in range(len(facets)):
-    #     facets[i] = {
-    #         'triangle': facets[i],
-    #         'normal': normals[i]
-    #     }
-
-    return build(facets)
-
-
-def build(facets):
     for i in range(len(facets)):
        facets[i]['triangle'].append(centroid(facets[i]['triangle']))
 
@@ -32,7 +28,7 @@ def _build(facets, depth = 0):
     axis = depth % DIMENSIONS
     ordered = sorted(facets, key = lambda f: f['triangle'][3][axis])
     left = ordered[:int(n / 2)]
-    right = ordered[int(n / 2 + 1):]
+    right = ordered[int(n / 2) + 1:]
     splitPoint = ordered[int(n / 2)]
     minPoint, maxPoint = boundingBox(facets)
 
@@ -121,8 +117,9 @@ def findIntersection(point1, point2, tree):
 
     if closest['dist'] != float('inf'):
         distC, triangleC = findIntersection(point1, point2, tree[closest['dir']])
-        if distC == float('inf') and further['dist'] != float('inf'):
-            distF, triangleF = findIntersection(point1, point2, tree[further['dir']])
+
+    if further['dist'] != float('inf'):
+        distF, triangleF = findIntersection(point1, point2, tree[further['dir']])
 
     distances = [
         (distance, tree['split']),

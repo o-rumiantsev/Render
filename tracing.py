@@ -2,9 +2,6 @@ import geometry as gm
 from KDTree import findIntersection
 
 def buildImagePlane(size, cameraPos, direction, distance):
-    colMax = size[0] / 2
-    rowMax = size[1] / 2
-
     viewVector = gm.multiplyVector(direction, distance)
     imPos = gm.vectorSum(cameraPos, viewVector)
 
@@ -16,15 +13,19 @@ def buildImagePlane(size, cameraPos, direction, distance):
 
     [colCoord, rowCoord] = [i for i, c in enumerate(viewVector) if c == 0]
 
+    colMax = size[0] / 2
+    rowMax = size[1] / 2
+
+
     imagePlane = []
     row = rowMax
 
     for i in range(size[1]):
         col = -colMax
-        pixel[rowCoord] = row / rowMax
+        pixel[rowCoord] = row / rowMax + cameraPos[rowCoord]
         imagePlane.append([])
         for j in range(size[0]):
-            pixel[colCoord] = col / colMax
+            pixel[colCoord] = col / colMax + cameraPos[colCoord]
             imagePlane[i].append(tuple(pixel))
             col += 1
 
@@ -39,9 +40,8 @@ def render(cameraPos, lightPos, imagePlane, tree):
 
     return image
 
-# colorCache = {}
 def colorify(cameraPos, pixel, lightPos, tree):
-    px = (255, 255, 255)
+    px = 255
     light = 200
 
     facet, normal = findIntersections(cameraPos, pixel, tree)
@@ -49,14 +49,6 @@ def colorify(cameraPos, pixel, lightPos, tree):
     if facet:
         color = gm.multiplyVector(gm.vectorSum(normal, gm.ones()), 0.5)
         px = gm.multiplyVector(color, 255)
-        # key = str(facet)
-        # if key in colorCache:
-        #     px = colorCache[key]
-        #
-        # centroid = facet[3]
-        # shadowCoeficient = gm.cosLinePlaneAngle(cameraPos, centroid, normal)
-        # px = abs(shadowCoeficient) * light
-        # colorCache[key] = px
         # px = buildShadow(lightPos, facet, normal, tree)
 
     return px
@@ -79,15 +71,12 @@ def buildShadow(lightPos, facet, normal, tree):
     light = 200
 
     centroid = facet[3]
-    epsilon = 0.0001
 
-    # shadowVector = gm.multiplyVector(gm.vector(lightPos, centroid), epsilon)
-    # shaderPoint = gm.vectorSum(lightPos, shadowVector)
+    obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
+    if obstacle and obstacle != facet:
+        shadowCache[key] = shadowed
+        return shadowed
 
-    # obstacle, obsNormal = findIntersections(lightPos, centroid, tree)
-    # if obstacle and obstacle != facet:
-    #     shadowCache[key] = shadowed
-    #     return shadowed
 
     shadowCoeficient = gm.cosLinePlaneAngle(lightPos, centroid, normal)
     shader = abs(shadowCoeficient) * light
