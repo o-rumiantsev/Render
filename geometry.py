@@ -3,6 +3,9 @@ import math
 sqr = lambda x: math.pow(x, 2)
 epsilon = 1e-8
 
+def ones():
+    return (1, 1, 1)
+
 # |Vector|
 #
 def vectorLength(vector):
@@ -84,19 +87,6 @@ def intersection(point1, point2, facet):
     return distance
 
 
-def plane(points):
-    x1, y1, z1 = points[0]
-    x2, y2, z2 = points[1]
-    x3, y3, z3 = points[2]
-
-    A = (y2 - y1) * (z3 - z1) - (y3 - y1) * (z2 - z1)
-    B = (x3 - x1) * (z2 - z1) - (x2 - x1) * (z3 - z1)
-    C = (x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)
-    D = -(A * x1 + B * y1 + C * z1)
-
-    return A, B, C, D
-
-
 # Centre of triangle
 #
 def centroid(points):
@@ -109,6 +99,14 @@ def centroid(points):
     zCentre = (z1 + z2 + z3) / 3
 
     return xCentre, yCentre, zCentre
+
+# Compute avarage normal direction
+#
+def avarageNormal(normals):
+    norm1, norm2, norm3 = normals
+    normal = vectorSum(norm1, norm2)
+    normal = vectorSum(normal, norm3)
+    return normalizeVector(normal)
 
 # Distance between two points
 #
@@ -123,8 +121,7 @@ def distance(point1, point2):
 # Cosinus of angle between line and plane
 #
 def cosLinePlaneAngle(lightPos, centroid, normal):
-    A, B, C, D = normal
-
+    A, B, C = normal
     m, n, p = vector(lightPos, centroid)
 
     len1 = math.sqrt(sqr(A) + sqr(B) + sqr(C))
@@ -182,9 +179,3 @@ def rayBoxIntersection(point1, point2, box):
         return float('inf')
 
     return Tnear
-
-def triangleSplitFacetIntersection(triangle, constCoordinate, axis):
-    ordered = sorted(triangle, key = lambda p: p[axis])
-
-    return (constCoordinate < ordered[0][axis]
-            or ordered[3][axis] < constCoordinate)

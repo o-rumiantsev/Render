@@ -1,4 +1,3 @@
-
 import parserObj
 import tracing as tr
 import geometry as geom
@@ -7,18 +6,18 @@ import output
 from time import time
 
 start = time()
-vertices, facets = parserObj.getObjectConfig('./objects/cow.obj')
+facets = parserObj.getObjectConfig('./objects/cow.obj', True)
 
-cameraPos = (0, -1, 0)
-lightPos = (1, -1, 1)
+cameraPos = (0.25, -1, 0.3)
+direction = (0, 1, 0)
+lightPos = (10, -10, 10)
 size = (1024, 1024)
 distance = 1
 
-imagePlane = tr.buildImagePlane(size, cameraPos, distance)
-normals = [geom.plane(facet) for facet in facets]
-tree = KDTree.buildTree(facets, normals)
+imagePlane = tr.buildImagePlane(size, cameraPos, direction, distance)
+tree = KDTree.buildTree(facets)
 
-image = tr.render(cameraPos, lightPos, imagePlane, facets, tree)
+image = tr.render(cameraPos, lightPos, imagePlane, tree)
 print(time() - start)
 
-output.writeToBMP(image, size, 'images/cow.bmp')
+output.writeToBMP(image, size, 'images/cow.rgb.bmp')
